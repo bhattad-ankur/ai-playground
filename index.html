@@ -7,3 +7,607 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500;600&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-void: #f5f7fa; --bg-base: #ffffff; --bg-panel: #ffffff; --bg-raised: #f0f3f8;
+    --bg-input: #f7f9fc; --border: #dce1ea; --border-active: #b8c2d4;
+    --text-bright: #1a2138; --text-main: #3b4563; --text-dim: #7a8399; --text-ghost: #b5bdd0;
+    --cyan: #2563eb; --cyan-dim: #6393f5; --cyan-glow: rgba(37,99,235,0.08);
+    --orange: #e07830; --orange-glow: rgba(224,120,48,0.08);
+    --green: #16a34a; --green-glow: rgba(22,163,74,0.07);
+    --red: #dc2626; --purple: #7c3aed; --purple-glow: rgba(124,58,237,0.07);
+    --yellow: #ca8a04;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-body: 'Source Sans 3', system-ui, sans-serif;
+    --font-mono: 'Geist Mono', 'Consolas', monospace;
+    --radius: 8px; --radius-lg: 14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--font-body);background:var(--bg-void);color:var(--text-main);line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased}
+.app-header{padding:1.5rem 2.5rem 1.1rem;border-bottom:1px solid var(--border);background:var(--bg-base);position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.app-title-row{display:flex;align-items:baseline;gap:1rem;margin-bottom:.15rem;flex-wrap:wrap}
+.app-title{font-family:var(--font-display);font-size:1.5rem;color:var(--text-bright);font-weight:400}
+.app-badge{font-family:var(--font-mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(37,99,235,.3);padding:.15rem .55rem;border-radius:100px}
+.app-subtitle{font-size:.83rem;color:var(--text-dim)}
+.step-rail{display:flex;gap:0;padding:0 2.5rem;background:var(--bg-base);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.step-rail::-webkit-scrollbar{display:none}
+.step-tab{display:flex;align-items:center;gap:.4rem;padding:.7rem .95rem;font-size:.72rem;font-family:var(--font-mono);color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;user-select:none}
+.step-tab:hover{color:var(--text-main);background:rgba(0,0,0,.03)}
+.step-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.step-tab.done{color:var(--green)}
+.step-tab .n{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:600;flex-shrink:0}
+.step-tab.done .n{background:var(--green);border-color:var(--green);color:#fff}
+.step-tab.active .n{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.main{max-width:1100px;margin:0 auto;padding:2rem 2.5rem 4rem}
+.sv{display:none;animation:si .35s ease}.sv.on{display:block}
+@keyframes si{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sh{margin-bottom:1.8rem}
+.sn{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:.25rem}
+.st{font-family:var(--font-display);font-size:1.85rem;color:var(--text-bright);font-weight:400;margin-bottom:.4rem}
+.sd{font-size:.9rem;color:var(--text-dim);max-width:620px;line-height:1.6}
+.pn{background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.15rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.15rem;border-bottom:1px solid var(--border);background:var(--bg-raised)}
+.pl{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.pb{padding:1.1rem}
+textarea.ia{width:100%;min-height:170px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem;color:var(--text-bright);font-family:var(--font-body);font-size:.86rem;line-height:1.7;resize:vertical;transition:border-color .2s}
+textarea.ia:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow)}
+textarea.ia::placeholder{color:var(--text-ghost)}
+input.qi{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;color:var(--text-bright);font-family:var(--font-body);font-size:.9rem;transition:border-color .2s}
+input.qi:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow)}
+input.qi::placeholder{color:var(--text-ghost)}
+input.ak{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem .9rem;color:var(--text-bright);font-family:var(--font-mono);font-size:.8rem}
+input.ak:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-glow)}
+.btn{font-family:var(--font-body);font-size:.84rem;font-weight:600;padding:.6rem 1.4rem;border:none;border-radius:var(--radius);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.45rem}
+.bp{background:var(--cyan);color:#fff}.bp:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 20px var(--cyan-glow)}.bp:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;filter:none}
+.bs{background:var(--bg-raised);color:var(--text-main);border:1px solid var(--border)}.bs:hover{border-color:var(--border-active);color:var(--text-bright)}
+.bg{background:transparent;color:var(--text-dim);padding:.4rem .8rem;font-size:.78rem;border:none;cursor:pointer}.bg:hover{color:var(--cyan)}
+.br{display:flex;gap:.65rem;align-items:center;margin-top:1rem;flex-wrap:wrap}
+.sp{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem}
+.pill{font-family:var(--font-mono);font-size:.66rem;padding:.38rem .85rem;border:1px solid var(--border);border-radius:100px;background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s}
+.pill:hover{border-color:var(--border-active);color:var(--text-main)}
+.pill.on{background:var(--cyan);border-color:var(--cyan);color:#fff;font-weight:500}
+.pill.llm{border-color:rgba(124,58,237,.4);color:var(--purple)}.pill.llm.on{background:var(--purple);color:#fff}
+.sr{display:flex;gap:1.4rem;margin:1rem 0;flex-wrap:wrap}
+.sb{display:flex;flex-direction:column}
+.sv2{font-family:var(--font-mono);font-size:1.4rem;font-weight:600;color:var(--text-bright);line-height:1.2}
+.sl{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-top:.1rem}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.65rem}
+.cc{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;transition:all .25s}
+.cc:hover{border-color:var(--border-active)}
+.ci{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:.35rem;display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:.8rem;color:var(--text-main);line-height:1.5;max-height:95px;overflow-y:auto}
+.ct::-webkit-scrollbar{width:3px}.ct::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cm{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.45rem}
+.tg{font-family:var(--font-mono);font-size:.56rem;padding:.1rem .4rem;border-radius:100px;background:rgba(37,99,235,.06);color:var(--cyan);border:1px solid rgba(37,99,235,.15)}
+.vr{display:flex;align-items:flex-start;gap:.8rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+.vr:last-child{border-bottom:none}
+.vl{font-family:var(--font-mono);font-size:.62rem;color:var(--cyan);width:50px;flex-shrink:0;padding-top:.1rem}
+.vb{flex:1;display:flex;gap:1.5px;align-items:flex-end;height:30px}
+.vba{flex:1;min-width:2px;max-width:9px;border-radius:1.5px 1.5px 0 0;transition:height .4s ease}
+.vn{font-family:var(--font-mono);font-size:.56rem;color:var(--text-ghost);line-height:1.3;width:140px;word-break:break-all;flex-shrink:0}
+.ew{position:relative;width:100%;min-height:380px;background:#f0f3f8;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.ew canvas{width:100%;height:100%;display:block;position:absolute;top:0;left:0}
+.el{position:absolute;bottom:10px;left:10px;display:flex;gap:.7rem;font-family:var(--font-mono);font-size:.58rem;color:var(--text-dim);background:rgba(255,255,255,.92);padding:.35rem .6rem;border-radius:6px;backdrop-filter:blur(6px);border:1px solid var(--border)}
+.ed{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+.ei{position:absolute;top:10px;right:10px;font-family:var(--font-mono);font-size:.55rem;color:var(--text-ghost);background:rgba(255,255,255,.92);padding:.3rem .55rem;border-radius:6px;border:1px solid var(--border)}
+#tt{position:fixed;display:none;background:#fff;border:1px solid var(--border);border-radius:6px;padding:.45rem .65rem;font-size:.76rem;color:var(--text-main);max-width:300px;pointer-events:none;z-index:999;box-shadow:0 6px 24px rgba(0,0,0,.1);font-family:var(--font-body);line-height:1.4}
+#tt .tl{font-family:var(--font-mono);font-size:.58rem;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.15rem}
+#tt.qt .tl{color:var(--orange)}
+.smr{display:flex;align-items:center;gap:.85rem;padding:.7rem .85rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.35rem;transition:all .25s}
+.smr.top{border-color:var(--orange);background:rgba(224,120,48,.06)}
+.smrk{font-family:var(--font-mono);font-size:.82rem;font-weight:600;width:24px;text-align:center;flex-shrink:0}
+.smr.top .smrk{color:var(--orange)}
+.sbw{width:65px;height:5px;background:var(--bg-input);border-radius:3px;overflow:hidden;flex-shrink:0}
+.sbb{height:100%;border-radius:3px;transition:width .6s ease}
+.smr.top .sbb{background:var(--orange)}.smr:not(.top) .sbb{background:var(--text-ghost)}
+.sms{font-family:var(--font-mono);font-size:.7rem;width:42px;text-align:right;flex-shrink:0}
+.smr.top .sms{color:var(--orange)}.smr:not(.top) .sms{color:var(--text-dim)}
+.smt{font-size:.78rem;color:var(--text-main);flex:1;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pb2{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:1.05rem;font-family:var(--font-mono);font-size:.73rem;line-height:1.7;color:var(--text-main);white-space:pre-wrap;max-height:420px;overflow-y:auto}
+.pb2 .sy{color:var(--purple)}.pb2 .cx{color:#15803d}.pb2 .qy{color:var(--orange)}.pb2 .ix{color:var(--cyan)}.pb2 .dm{color:var(--text-ghost)}
+.go{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem;font-size:.88rem;line-height:1.75;color:var(--text-bright)}
+.go .cit{font-family:var(--font-mono);font-size:.66rem;color:#15803d;background:rgba(22,163,74,.08);padding:.06rem .3rem;border-radius:3px}
+.ins{display:flex;gap:.65rem;padding:.85rem 1rem;border-radius:var(--radius);margin:1.1rem 0;font-size:.84rem;line-height:1.6;align-items:flex-start}
+.ins-i{font-size:.9rem;flex-shrink:0;margin-top:2px}
+.ins-c{background:var(--cyan-glow);border-left:3px solid var(--cyan)}.ins-o{background:var(--orange-glow);border-left:3px solid var(--orange)}.ins-p{background:var(--purple-glow);border-left:3px solid var(--purple)}
+.ins strong{color:var(--text-bright)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fa{text-align:center;padding:.6rem 0;color:var(--text-ghost);font-size:1rem}
+.slr{display:flex;align-items:center;gap:.9rem;margin:.85rem 0}
+.sll{font-family:var(--font-mono);font-size:.7rem;color:var(--text-dim);flex-shrink:0}
+input[type="range"]{flex:1;-webkit-appearance:none;background:var(--border);height:4px;border-radius:2px;outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--cyan);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.slv{font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--cyan);width:24px;text-align:center}
+.ht{font-size:.84rem;line-height:1.75;color:var(--text-main)}
+.ht .cs{border-radius:3px;padding:.06rem 0;transition:all .2s;cursor:default}.ht .cs:hover{filter:brightness(1.3)}
+.c0{background:rgba(37,99,235,.1);border-bottom:2px solid var(--cyan)}.c1{background:rgba(224,120,48,.1);border-bottom:2px solid var(--orange)}.c2{background:rgba(22,163,74,.08);border-bottom:2px solid var(--green)}.c3{background:rgba(124,58,237,.08);border-bottom:2px solid var(--purple)}.c4{background:rgba(202,138,4,.1);border-bottom:2px solid var(--yellow)}.c5{background:rgba(220,38,38,.08);border-bottom:2px solid var(--red)}
+.cb0{border-left:3px solid var(--cyan)}.cb1{border-left:3px solid var(--orange)}.cb2{border-left:3px solid var(--green)}.cb3{border-left:3px solid var(--purple)}.cb4{border-left:3px solid var(--yellow)}.cb5{border-left:3px solid var(--red)}
+.es{text-align:center;padding:2.5rem;color:var(--text-ghost);font-style:italic}
+.ld{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.as{background:var(--bg-raised);border:1px solid rgba(124,58,237,.2);border-radius:var(--radius);padding:.9rem 1rem;margin-top:.9rem}
+.ast{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem}
+.abs{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--font-mono);font-size:.58rem;padding:.12rem .45rem;border-radius:100px}
+.abs.ok{color:var(--green);background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2)}
+.abs.no{color:var(--text-ghost);background:rgba(181,189,208,.1);border:1px solid var(--border)}
+/* ── Type badge ── */
+.type-badge{display:inline-block;font-size:.58rem;font-family:var(--font-mono);padding:.08rem .38rem;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;vertical-align:middle}
+.type-badge.sparse{background:#dbeafe;color:#1e40af}
+.type-badge.dense{background:#f0fdf4;color:#166534}
+/* ── Strategy / embedding definition cards ── */
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.5rem}
+.def-card{border:1px solid var(--border);border-radius:var(--radius);padding:.75rem .95rem;background:var(--bg-raised);transition:border-color .2s,background .2s}
+.def-card.active{border-color:var(--cyan);background:var(--cyan-glow)}
+.def-card-name{font-weight:600;font-size:.8rem;color:var(--text-bright);margin-bottom:.25rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.def-card-desc{font-size:.74rem;color:var(--text-dim);line-height:1.55;margin-bottom:.3rem}
+.def-card-meta{font-family:var(--font-mono);font-size:.58rem;color:var(--text-ghost);margin-top:.25rem}
+.def-pros-cons{margin-top:.3rem;display:flex;flex-direction:column;gap:.1rem}
+.def-pros-cons span{font-size:.72rem;line-height:1.4}
+.def-pros-cons .pro{color:var(--green)}
+.def-pros-cons .con{color:var(--text-dim)}
+/* ── Dense vs Sparse panel ── */
+.ds-panel{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.6rem}
+.ds-col{border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;background:var(--bg-raised)}
+.ds-col-title{font-weight:600;font-size:.78rem;color:var(--text-bright);margin-bottom:.45rem;display:flex;align-items:center;gap:.45rem}
+.ds-stat-row{display:flex;gap:1.2rem;margin-bottom:.5rem;flex-wrap:wrap}
+.ds-stat{display:flex;flex-direction:column}
+.ds-stat-val{font-family:var(--font-mono);font-size:1.05rem;font-weight:600;color:var(--text-bright);line-height:1.1}
+.ds-stat-lbl{font-family:var(--font-mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin-top:.1rem}
+.ds-bars{display:flex;align-items:flex-end;gap:1.5px;height:36px;overflow:hidden;margin:0 0 .4rem}
+.ds-bars .b{width:5px;border-radius:1px 1px 0 0;min-height:2px;flex-shrink:0}
+.ds-note{font-size:.71rem;color:var(--text-dim);line-height:1.5;font-style:italic}
+/* ── Vector store cards ── */
+.vs-section-title{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem}
+.vs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.4rem}
+.vs-card{border:1px solid var(--border);border-radius:var(--radius);padding:.85rem;background:var(--bg-raised);transition:border-color .2s}
+.vs-card:hover{border-color:var(--border-active)}
+.vs-card-name{font-weight:700;font-size:.85rem;color:var(--text-bright);margin-bottom:.25rem}
+.vs-type{font-size:.57rem;font-family:var(--font-mono);padding:.09rem .38rem;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;display:inline-block;margin-bottom:.35rem}
+.vs-type.cloud{background:#dbeafe;color:#1e40af}
+.vs-type.oss{background:#dcfce7;color:#166534}
+.vs-type.lib{background:#fef3c7;color:#92400e}
+.vs-type.ext{background:#f3e8ff;color:#6b21a8}
+.vs-desc{font-size:.74rem;color:var(--text-dim);line-height:1.55}
+@media(max-width:768px){.split{grid-template-columns:1fr}.step-rail{padding:0 1rem}.main{padding:1.4rem 1.1rem}.app-header{padding:1.1rem}.cg{grid-template-columns:1fr}.smr{flex-wrap:wrap}.def-grid{grid-template-columns:1fr}.ds-panel{grid-template-columns:1fr}.vs-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.vs-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="app-header">
+    <div class="app-title-row">
+        <h1 class="app-title">RAG Pipeline Visualizer</h1>
+        <span class="app-badge">Interactive · Model Agnostic</span>
+        <span id="apiBadge" class="abs no" style="margin-left:auto">● No API</span>
+    </div>
+    <p class="app-subtitle">Feed in a document, watch every transformation, explore the embedding space</p>
+</header>
+<nav class="step-rail" id="rail"></nav>
+<main class="main" id="M"></main>
+<div id="tt"></div>
+<script type="module">
+import{pipeline,env}from'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+env.allowLocalModels=false;
+window._getEmbedPipe=async(onProgress)=>{
+  if(!window._embedPipe)window._embedPipe=await pipeline('feature-extraction','Xenova/all-MiniLM-L6-v2',{progress_callback:onProgress});
+  return window._embedPipe;
+};
+</script>
+<script>
+const ST={step:0,raw:'',clean:'',ch:[],em:'tfidf',voc:[],emb:[],proj:[],q:'',qv:[],qp:null,sim:[],k:3,cm:'paragraph',ret:[],dn:new Set(),ak:'',gk:'',ap:'jina',ll:false,lp:'',ld:0,gp:'openrouter',gr:'',gl:false,_p1:null,_p2:null,_m:null};
+const STEPS=[{id:'input',s:'Input'},{id:'ingest',s:'Ingest'},{id:'chunk',s:'Chunk'},{id:'embed',s:'Embed'},{id:'query',s:'Query'},{id:'retrieve',s:'Retrieve'},{id:'context',s:'Context'},{id:'generate',s:'Generate'}];
+const SAMPLE=`Quarterly Business Review — Q3 2024\n\nExecutive Summary\n\nTotal company revenue for Q3 2024 reached $47.2 million, representing a 12% year-over-year increase. This growth was primarily driven by strong performance in the Enterprise segment, which contributed $29.1 million (62% of total revenue). The Mid-Market segment generated $12.3 million (26%), while SMB accounted for $5.8 million (12%).\n\nCustomer Metrics\n\nOur customer base grew to 2,847 active accounts, up from 2,510 in Q3 2023. Net revenue retention rate stood at 118%, reflecting strong expansion within existing accounts. Customer acquisition cost (CAC) decreased by 8% to $12,400 per enterprise account due to improved marketing efficiency. The average contract value for new enterprise deals increased to $185,000, up from $162,000 in the prior year.\n\nChurn and Retention\n\nOverall gross churn rate was 4.2% for the quarter, down from 5.1% in Q2. The primary drivers of churn were budget constraints among mid-market customers and product-market fit issues in the healthcare vertical. The customer success team implemented a new early warning system using usage analytics, which identified 23 at-risk accounts and successfully retained 18 of them.\n\nProduct Development\n\nThe engineering team shipped three major features in Q3: (1) Advanced Analytics Dashboard with custom KPI tracking, (2) API v3 with improved rate limiting and webhook support, and (3) Single Sign-On integration for enterprise customers. User adoption of the new analytics dashboard reached 34% within the first month. The product roadmap for Q4 includes AI-assisted report generation and enhanced data export capabilities.\n\nOperational Highlights\n\nHeadcount increased from 312 to 341 employees. The sales team expanded by 12 representatives, primarily focused on enterprise accounts. Infrastructure costs decreased by 6% through cloud optimization, while maintaining 99.97% uptime. The support team achieved an average first response time of 2.3 hours, down from 3.8 hours in Q2.\n\nFinancial Outlook\n\nBased on current pipeline and expansion opportunities, we project Q4 revenue between $50-52 million. Key risks include potential delays in two large enterprise renewals totaling $4.1 million and macroeconomic uncertainty affecting mid-market budgets. The Board has approved an additional $2 million investment in the AI product initiative for Q1 2025.`;
+const STOP=new Set('the and for are but not you all any can had her was one our out has its let may who did got too use she how get him his old see now way own say two did few sit try ask men run new day put end set big act add ago air age also area back best both came case city come data date does done down each even fact from give good have help here high home into just keep kind know last left life like line live long look made make many more most much must name need next only open over part past plan play real same side some sure take tell than that them then they this time turn upon used very want well went were what when will with word work year your been call could find first goes just know like long look make more most need over said some such take than that these thing think those time very want well what when where which while will with would about after again being between could does each even every find first from give going great have help here high home into just keep know last life line little long look made make many might more most much must name never next only other over part place point right same should show small some still such take tell their then there these thing think those three time turn under upon using very want well were what when where which while will with without word work world would year'.split(' '));
+const CC=['#2563eb','#e07830','#16a34a','#7c3aed','#ca8a04','#dc2626','#0891b2','#db2777'];
+
+function h(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function ha(s){return s.replace(/"/g,'&quot;')}
+function go(i){ST.step=i;R()}
+function nx(){ST.dn.add(ST.step);ST.step=Math.min(ST.step+1,STEPS.length-1);R()}
+function R(){
+    const rail=document.getElementById('rail');
+    rail.innerHTML=STEPS.map((s,i)=>`<div class="step-tab${i===ST.step?' active':''}${ST.dn.has(i)?' done':''}" onclick="go(${i})"><span class="n">${ST.dn.has(i)?'✓':i+1}</span>${s.s}</div>`).join('');
+    const m=document.getElementById('M');
+    m.innerHTML=`<div class="sv on">${(RR[STEPS[ST.step].id]||(_=>''))()}</div>`;
+    if(['embed','retrieve'].includes(STEPS[ST.step].id))setTimeout(drawC,60);
+    const b=document.getElementById('apiBadge');
+    if(b){if(ST.ak){b.className='abs ok';b.textContent='● API ready'}else{b.className='abs no';b.textContent='● No API'}}
+}
+
+// Tokenize
+function tok(t){return t.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>2&&!STOP.has(w))}
+function buildV(chunks,mx=50){const df={};chunks.forEach(c=>{const s=new Set();tok(c).forEach(w=>{if(!s.has(w)){df[w]=(df[w]||0)+1;s.add(w)}})});return Object.entries(df).filter(([,f])=>f<chunks.length*.9).sort((a,b)=>b[1]-a[1]).slice(0,mx).map(([w])=>w)}
+function buildIDF(ch,v){const N=ch.length,df={};ch.forEach(c=>{const s=new Set(tok(c));v.forEach(w=>{if(s.has(w))df[w]=(df[w]||0)+1})});return v.map(w=>Math.log((N+1)/(1+(df[w]||0))))}
+function norm(v){const m=Math.sqrt(v.reduce((a,x)=>a+x*x,0));return m>0?v.map(x=>x/m):v}
+function eTFIDF(t,v,idf){const ts=tok(t),tf={};ts.forEach(t=>{tf[t]=(tf[t]||0)+1});return v.map((w,i)=>{const r=tf[w]||0;return r>0?(1+Math.log(r))*(idf[i]||1):0})}
+function eBOW(t,v){const s=new Set(tok(t));return v.map(w=>s.has(w)?1:0)}
+function eBM25(t,v,ad,idf){const ts=tok(t),tf={},dl=ts.length,k1=1.2,b=.75;ts.forEach(t=>{tf[t]=(tf[t]||0)+1});return v.map((w,i)=>{const f=tf[w]||0;return f>0?(idf[i]||1)*((f*(k1+1))/(f+k1*(1-b+b*(dl/(ad||1))))):0})}
+function eTFBIN(t,v,idf){const s=new Set(tok(t));return v.map((w,i)=>s.has(w)?(idf[i]||1):0)}
+async function eLLM(texts,inputType='passage'){
+    if(!ST.ak)throw new Error('No API key');
+    if(ST.ap==='openai'){const r=await fetch('https://api.openai.com/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`},body:JSON.stringify({model:'text-embedding-3-small',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
+    if(ST.ap==='voyage'){const r=await fetch('https://api.voyageai.com/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`},body:JSON.stringify({model:'voyage-3-lite',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
+    if(ST.ap==='openrouter'){const r=await fetch('https://openrouter.ai/api/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`,'HTTP-Referer':'https://github.com/bhattad-ankur/ai-playground','X-Title':'RAG Visualizer'},body:JSON.stringify({model:'nvidia/llama-nemotron-embed-vl-1b-v2:free',input:texts,input_type:inputType})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
+    if(ST.ap==='jina'){const r=await fetch('https://api.jina.ai/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`},body:JSON.stringify({model:'jina-embeddings-v3',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
+}
+async function eLocal(texts){
+    if(!window._getEmbedPipe)throw new Error('Transformers.js not loaded yet — refresh the page');
+    const pipe=await window._getEmbedPipe(p=>{if(p&&p.status==='progress'&&p.file?.includes('onnx')){ST.lp=`Downloading model… ${Math.round(p.progress||0)}%`;R()}});
+    ST.lp='';
+    const results=[];
+    for(const t of texts){const out=await pipe(t,{pooling:'mean',normalize:true});results.push(Array.from(out.data));}
+    return results;
+}
+async function doGenerateReal(){
+    if(!ST.gk){alert('Add an OpenRouter API key on the Input step first.');return}
+    ST.gl=true;R();
+    const ctx=ST.ret.map((r,i)=>`[Evidence ${i+1}]: ${ST.ch[r.chunkIdx]}`).join('\n\n');
+    const sys='You are a helpful assistant. Answer the question using only the provided evidence. Cite sources as [Evidence 1], [Evidence 2], etc.';
+    const usr=`Question: ${ST.q}\n\nEvidence:\n${ctx}`;
+    try{
+        const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.gk}`,'HTTP-Referer':'https://github.com/bhattad-ankur/ai-playground','X-Title':'RAG Visualizer'},body:JSON.stringify({model:'nvidia/nemotron-3-super-120b-a12b:free',messages:[{role:'system',content:sys},{role:'user',content:usr}],max_tokens:512})});
+        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`API Error ${r.status}`)}
+        const d=await r.json();
+        ST.gr=d.choices[0]?.message?.content||'(empty response)';
+    }catch(e){alert('Generation error: '+e.message);}
+    ST.gl=false;R();
+}
+function cosS(a,b){let d=0,ma=0,mb=0;for(let i=0;i<a.length;i++){d+=a[i]*b[i];ma+=a[i]*a[i];mb+=b[i]*b[i]}return(ma===0||mb===0)?0:d/(Math.sqrt(ma)*Math.sqrt(mb))}
+
+// Chunking
+function cP(t){return t.split(/\n\n+/).map(p=>p.trim()).filter(p=>p.length>20)}
+function cS(t,n=3){const s=t.match(/[^.!?]+[.!?]+/g)||[t];const c=[];for(let i=0;i<s.length;i+=n){const x=s.slice(i,i+n).join(' ').trim();if(x.length>10)c.push(x)}return c}
+function cF(t,sz=500,ov=100){const c=[];let i=0;while(i<t.length){const x=t.slice(i,Math.min(i+sz,t.length)).trim();if(x.length>10)c.push(x);i+=sz-ov}return c}
+function cH(t){const l=t.split('\n'),c=[];let cur=[];for(const x of l){const hd=x.trim().length>0&&x.trim().length<60&&(/^[A-Z][A-Za-z\s—\-:,&]+$/.test(x.trim())||/^#+\s/.test(x.trim()));if(hd&&cur.length){const tx=cur.join('\n').trim();if(tx.length>20)c.push(tx);cur=[x]}else cur.push(x)}if(cur.length){const tx=cur.join('\n').trim();if(tx.length>20)c.push(tx)}return c.length?c:cP(t)}
+function cCA(t){const ss=t.match(/[^.!?]+[.!?]+/g)||[t];if(ss.length<=2)return cP(t);const allW=[...new Set(ss.flatMap(s=>tok(s)))].slice(0,300);function tv(s){const ct={};tok(s).forEach(w=>ct[w]=(ct[w]||0)+1);const v=allW.map(w=>ct[w]||0);const l=Math.sqrt(v.reduce((a,x)=>a+x*x,0));return l>0?v.map(x=>x/l):v}const vs=ss.map(tv);const sims=vs.slice(1).map((v,i)=>cosS(vs[i],v));const avg=sims.reduce((a,x)=>a+x,0)/sims.length;const std=Math.sqrt(sims.reduce((a,x)=>a+(x-avg)**2,0)/sims.length);const thr=Math.max(0,avg-std);const chunks=[];let cur=[ss[0]];sims.forEach((sim,i)=>{if(sim<thr){const tx=cur.join(' ').trim();if(tx.length>20)chunks.push(tx);cur=[ss[i+1]]}else cur.push(ss[i+1])});if(cur.length){const tx=cur.join(' ').trim();if(tx.length>20)chunks.push(tx)}return chunks.length?chunks:cP(t)}
+function doChunk(){const m={paragraph:cP,sentence:t=>cS(t,3),fixed:t=>cF(t,500,100),section:cH,context:cCA};ST.ch=(m[ST.cm]||cP)(ST.clean)}
+
+// PCA
+function doProject(){
+    const vecs=ST.emb.map(e=>e.vector);if(!vecs.length){ST.proj=[];return}
+    const dim=vecs[0].length,n=vecs.length;
+    const mean=new Array(dim).fill(0);vecs.forEach(v=>v.forEach((x,i)=>mean[i]+=x));mean.forEach((_,i)=>mean[i]/=n);
+    const cen=vecs.map(v=>v.map((x,i)=>x-mean[i]));
+    function pw(mat,ex){let r=new Array(dim).fill(0).map(()=>Math.random()-.5);if(ex){const d=r.reduce((a,x,i)=>a+x*ex[i],0);r=r.map((x,i)=>x-d*ex[i])}let nm=Math.sqrt(r.reduce((a,x)=>a+x*x,0));r=r.map(x=>x/(nm||1));for(let it=0;it<30;it++){const nr=new Array(dim).fill(0);mat.forEach(row=>{const d=row.reduce((a,x,i)=>a+x*r[i],0);row.forEach((x,i)=>nr[i]+=d*x)});if(ex){const d=nr.reduce((a,x,i)=>a+x*ex[i],0);nr.forEach((_,i)=>nr[i]-=d*ex[i])}nm=Math.sqrt(nr.reduce((a,x)=>a+x*x,0));r=nr.map(x=>x/(nm||1))}return r}
+    const p1=pw(cen,null),p2=pw(cen,p1);
+    ST._p1=p1;ST._p2=p2;ST._m=mean;
+    ST.proj=cen.map((v,idx)=>({x:v.reduce((a,x,i)=>a+x*p1[i],0),y:v.reduce((a,x,i)=>a+x*p2[i],0),chunkIdx:idx}));
+}
+function projQ(qv){if(!ST._p1)return null;const c=qv.map((x,i)=>x-(ST._m[i]||0));return{x:c.reduce((a,x,i)=>a+x*(ST._p1[i]||0),0),y:c.reduce((a,x,i)=>a+x*(ST._p2[i]||0),0)}}
+
+// Embed — separated compute from navigation
+async function computeEmbed(){
+    const m=ST.em;
+    if(m==='llm'){
+        if(!ST.ak){alert('Add a Jina API key on the Input step first.');return}
+        ST.ll=true;R();
+        try{const vs=await eLLM(ST.ch);ST.emb=vs.map((v,i)=>({chunkIdx:i,vector:v}));ST.voc=[];ST.ld=vs[0]?.length||0}catch(e){alert('API error: '+e.message);}
+        ST.ll=false;
+    }else if(m==='local'){
+        ST.ll=true;ST.lp='Loading model…';R();
+        try{const vs=await eLocal(ST.ch);ST.emb=vs.map((v,i)=>({chunkIdx:i,vector:v}));ST.voc=[];ST.ld=vs[0]?.length||0}catch(e){alert('Local model error: '+e.message);}
+        ST.ll=false;ST.lp='';
+    }else{
+        ST.voc=buildV(ST.ch,50);const idf=buildIDF(ST.ch,ST.voc);const ad=ST.ch.reduce((a,c)=>a+tok(c).length,0)/(ST.ch.length||1);
+        if(m==='tfidf')ST.emb=ST.ch.map((c,i)=>({chunkIdx:i,vector:norm(eTFIDF(c,ST.voc,idf))}));
+        else if(m==='bow')ST.emb=ST.ch.map((c,i)=>({chunkIdx:i,vector:norm(eBOW(c,ST.voc))}));
+        else if(m==='bm25')ST.emb=ST.ch.map((c,i)=>({chunkIdx:i,vector:norm(eBM25(c,ST.voc,ad,idf))}));
+        else if(m==='tfidf-bin')ST.emb=ST.ch.map((c,i)=>({chunkIdx:i,vector:norm(eTFBIN(c,ST.voc,idf))}));
+        ST.ld=0;
+    }
+    doProject();R();setTimeout(drawC,60);
+}
+// Called from Chunk page button — navigates to embed first, then computes
+async function doEmbed(){
+    if(ST.step===2)nx();
+    await computeEmbed();
+}
+
+async function doQuery(){
+    ST.q=document.getElementById('qIn').value.trim();if(!ST.q)return;
+    if(ST.em==='local'){try{const vs=await eLocal([ST.q]);ST.qv=vs[0]}catch(e){alert('Error: '+e.message);return}}
+    else if(ST.em==='llm'&&ST.ak){try{const vs=await eLLM([ST.q],'query');ST.qv=vs[0]}catch(e){alert('Error: '+e.message);return}}
+    else{const idf=buildIDF(ST.ch,ST.voc);const ad=ST.ch.reduce((a,c)=>a+tok(c).length,0)/ST.ch.length;if(ST.em==='bow')ST.qv=norm(eBOW(ST.q,ST.voc));else if(ST.em==='bm25')ST.qv=norm(eBM25(ST.q,ST.voc,ad,idf));else if(ST.em==='tfidf-bin')ST.qv=norm(eTFBIN(ST.q,ST.voc,idf));else ST.qv=norm(eTFIDF(ST.q,ST.voc,idf))}
+    ST.qp=projQ(ST.qv);ST.sim=ST.emb.map(e=>({chunkIdx:e.chunkIdx,score:cosS(ST.qv,e.vector)})).sort((a,b)=>b.score-a.score);ST.ret=ST.sim.slice(0,ST.k);nx();
+}
+
+// Canvas — improved with axis labels + method overlay
+function drawC(){
+    const wrap=document.getElementById('ew'),canvas=document.getElementById('cv');
+    if(!canvas||!wrap)return;const rect=wrap.getBoundingClientRect();const dpr=window.devicePixelRatio||1;
+    canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;canvas.style.width=rect.width+'px';canvas.style.height=rect.height+'px';
+    const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);const W=rect.width,H=rect.height;ctx.clearRect(0,0,W,H);
+    if(!ST.proj.length)return;const pad=56;const ap=[...ST.proj];if(ST.qp)ap.push(ST.qp);
+    const xs=ap.map(p=>p.x),ys=ap.map(p=>p.y);
+    const xn=Math.min(...xs),xx=Math.max(...xs),yn=Math.min(...ys),yx=Math.max(...ys);
+    const xr=xx-xn||1,yr=yx-yn||1;const sc=Math.min((W-pad*2)/xr,(H-pad*2)/yr);
+    const cx=W/2,cy=H/2,xm=(xn+xx)/2,ym=(yn+yx)/2;
+    function ts(p){return{sx:cx+(p.x-xm)*sc,sy:cy-(p.y-ym)*sc}}
+    // Grid
+    ctx.strokeStyle='rgba(200,210,230,.4)';ctx.lineWidth=.5;
+    for(let i=0;i<W;i+=55){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,H);ctx.stroke()}
+    for(let i=0;i<H;i+=55){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(W,i);ctx.stroke()}
+    // Axis lines
+    ctx.strokeStyle='rgba(150,165,195,.5)';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.moveTo(pad/2,cy);ctx.lineTo(W-pad/2,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,pad/2);ctx.lineTo(cx,H-pad/2);ctx.stroke();
+    // Axis labels
+    ctx.font='500 10px "Geist Mono",monospace';ctx.fillStyle='rgba(100,120,160,.7)';
+    ctx.textAlign='center';ctx.fillText('PC1 →',W/2,H-8);
+    ctx.save();ctx.translate(11,H/2);ctx.rotate(-Math.PI/2);ctx.fillText('↑ PC2',0,0);ctx.restore();
+    ctx.textAlign='left';
+    // Method label top-left
+    const mLabel={tfidf:'TF-IDF · Sparse',bow:'Bag of Words · Sparse',bm25:'BM25 · Sparse','tfidf-bin':'TF-IDF Binary · Sparse',llm:'Jina AI · Dense',local:'In-Browser Neural · Dense'}[ST.em]||ST.em;
+    const isD=ST.em==='llm';
+    ctx.font='500 9px "Geist Mono",monospace';
+    const lbg=isD?'rgba(124,58,237,.1)':'rgba(37,99,235,.1)';
+    const lfc=isD?'rgba(124,58,237,.85)':'rgba(37,99,235,.85)';
+    const lw=ctx.measureText(mLabel).width;
+    ctx.fillStyle=lbg;const lpad=5;
+    ctx.beginPath();ctx.roundRect(8,8,lw+lpad*2,16,3);ctx.fill();
+    ctx.fillStyle=lfc;ctx.fillText(mLabel,8+lpad,20);
+    // Retrieval lines
+    const rS=new Set(ST.ret.map(r=>r.chunkIdx));
+    if(ST.qp&&ST.ret.length){const qs=ts(ST.qp);ST.ret.forEach(r=>{const pt=ST.proj[r.chunkIdx];if(!pt)return;const ps=ts(pt);ctx.beginPath();ctx.moveTo(qs.sx,qs.sy);ctx.lineTo(ps.sx,ps.sy);ctx.strokeStyle=`rgba(22,163,74,${.25+r.score*.5})`;ctx.lineWidth=1.5+r.score*2;ctx.stroke();
+    const mx2=(qs.sx+ps.sx)/2,my2=(qs.sy+ps.sy)/2;ctx.font='600 9px "Geist Mono",monospace';ctx.fillStyle='rgba(22,163,74,.9)';ctx.fillText((r.score*100).toFixed(0)+'%',mx2+4,my2-4)})}
+    // Points
+    const spts=[];
+    ST.proj.forEach((pt,i)=>{const{sx,sy}=ts(pt);const isR=rS.has(i);const r=isR?8:6;const col=isR?'#16a34a':CC[i%CC.length];
+    if(isR){ctx.beginPath();ctx.arc(sx,sy,r+5,0,Math.PI*2);ctx.fillStyle='rgba(22,163,74,.12)';ctx.fill()}
+    ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;ctx.stroke();
+    // Short label next to point
+    ctx.font='500 9px "Geist Mono",monospace';ctx.fillStyle='rgba(60,70,100,.65)';ctx.fillText(`${i+1}`,sx+r+3,sy+4);
+    spts.push({sx,sy,r,idx:i,type:'chunk'})});
+    // Query
+    if(ST.qp){const{sx,sy}=ts(ST.qp);ctx.beginPath();ctx.arc(sx,sy,16,0,Math.PI*2);ctx.fillStyle='rgba(224,120,48,.12)';ctx.fill();
+    ctx.beginPath();ctx.arc(sx,sy,9,0,Math.PI*2);ctx.fillStyle='#e07830';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.font='bold 10px "Geist Mono",monospace';ctx.fillStyle='#e07830';ctx.fillText('Q',sx+13,sy+4);
+    spts.push({sx,sy,r:9,idx:-1,type:'query'})}
+    canvas._pts=spts;
+}
+document.addEventListener('mousemove',e=>{const cv=document.getElementById('cv'),tt=document.getElementById('tt');if(!cv||!tt||!cv._pts){if(tt)tt.style.display='none';return}const r=cv.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;let hit=null;for(const p of cv._pts){const dx=mx-p.sx,dy=my-p.sy;if(dx*dx+dy*dy<(p.r+8)*(p.r+8)){hit=p;break}}
+if(hit){if(hit.type==='query'){tt.className='qt';tt.innerHTML=`<div class="tl">Query</div>${h(ST.q)}`}else{tt.className='';const ch=ST.ch[hit.idx]||'';const sim=ST.sim.find(s=>s.chunkIdx===hit.idx);const simStr=sim?` · ${(sim.score*100).toFixed(1)}% match`:'';tt.innerHTML=`<div class="tl">Chunk ${hit.idx+1}${simStr}</div>${h(ch.length>200?ch.slice(0,200)+'…':ch)}`}tt.style.display='block';tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-10)+'px'}else{tt.style.display='none'}});
+window.addEventListener('resize',()=>{if(['embed','retrieve'].includes(STEPS[ST.step]?.id))drawC()});
+document.addEventListener('input',e=>{if(e.target.id==='docIn'){ST.raw=e.target.value;const b=document.getElementById('goBtn');if(b)b.disabled=!ST.raw.trim();const c=document.getElementById('cc');if(c)c.textContent=ST.raw.length+' chars'}if(e.target.id==='genKeyIn'){ST.gk=e.target.value.trim();R()}});
+
+// ═══════════════════════════════════════════════════════
+// RENDERERS
+// ═══════════════════════════════════════════════════════
+const RR={
+input(){return`<div class="sh"><div class="sn">Step 1 of 8</div><h2 class="st">Document Input</h2><p class="sd">Paste your source document. This flows through every pipeline stage.</p></div>
+<div class="pn"><div class="ph"><span class="pl">Source Document</span><button class="bg" onclick="ST.raw=SAMPLE;R()">Load sample</button></div>
+<div class="pb"><textarea class="ia" id="docIn" placeholder="Paste any document…">${ST.raw}</textarea>
+<div class="br"><button class="btn bp" onclick="doIngest()" id="goBtn" ${!ST.raw?'disabled':''}>Process →</button><span style="font-size:.76rem;color:var(--text-dim)" id="cc">${ST.raw?ST.raw.length+' chars':''}</span></div></div></div>
+<div class="as"><div class="ast">🔑 Generation API (Optional)</div>
+<p style="font-size:.8rem;color:var(--text-dim);margin-bottom:.5rem;line-height:1.5">Add an OpenRouter key to enable AI-generated answers on the final step. Embeddings run in-browser — no key needed.</p>
+<div style="display:flex;gap:.4rem;align-items:center">
+<input class="ak" id="genKeyIn" type="password" placeholder="OpenRouter key (openrouter.ai — free)" value="${ha(ST.gk)}" style="flex:1"></div></div>
+<div class="ins ins-c"><span class="ins-i">💡</span><div><strong>Workshop tip:</strong> Embeddings run fully in-browser via a neural network — no API key needed. Add an OpenRouter key only if you want AI-generated answers at the end.</div></div>`},
+
+ingest(){return`<div class="sh"><div class="sn">Step 2 of 8</div><h2 class="st">Ingestion & Parsing</h2><p class="sd">Raw content is cleaned and normalized. Production systems also handle PDF extraction, OCR, tables, and metadata.</p></div>
+<div class="sr"><div class="sb"><div class="sv2">${ST.raw.length.toLocaleString()}</div><div class="sl">Raw Chars</div></div><div class="sb"><div class="sv2">${ST.clean.length.toLocaleString()}</div><div class="sl">Clean Chars</div></div></div>
+<div class="split"><div class="pn"><div class="ph"><span class="pl">Raw</span></div><div class="pb"><div style="font-family:var(--font-mono);font-size:.73rem;white-space:pre-wrap;color:var(--text-dim);max-height:280px;overflow-y:auto;line-height:1.6">${h(ST.raw)}</div></div></div>
+<div class="pn"><div class="ph"><span class="pl">Cleaned</span></div><div class="pb"><div style="font-family:var(--font-mono);font-size:.73rem;white-space:pre-wrap;color:var(--text-bright);max-height:280px;overflow-y:auto;line-height:1.6">${h(ST.clean)}</div></div></div></div>
+<div class="br"><button class="btn bs" onclick="go(0)">← Back</button><button class="btn bp" onclick="doChunk();nx()">Chunk →</button></div>`},
+
+chunk(){
+    let seg=[],pos=0;ST.ch.forEach((ch,i)=>{const idx=ST.clean.indexOf(ch,pos);if(idx>=0){if(idx>pos)seg.push({t:ST.clean.slice(pos,idx),i:-1});seg.push({t:ch,i});pos=idx+ch.length}});if(pos<ST.clean.length)seg.push({t:ST.clean.slice(pos),i:-1});
+    const inl=seg.map(s=>s.i<0?`<span style="color:var(--text-ghost)">${h(s.t)}</span>`:`<span class="cs c${s.i%6}" title="Chunk ${s.i+1}">${h(s.t)}</span>`).join('');
+    const cards=ST.ch.map((c,i)=>`<div class="cc cb${i%6}"><div class="ci"><span>Chunk ${i+1}</span><span>${c.length} ch</span></div><div class="ct">${h(c)}</div><div class="cm"><span class="tg">${ST.cm}</span><span class="tg">${Math.ceil(c.split(/\s+/).length)}w</span></div></div>`).join('');
+    const CHDEF={
+        paragraph:{icon:'¶',name:'Paragraph',desc:'Splits on blank lines (\\u{000A}\\u{000A}). Each paragraph becomes one chunk, preserving natural document structure like headings with their body text.',pro:'Maintains semantic coherence per section',con:'Highly variable chunk sizes (50–2000+ chars)',tip:'Best for: articles, reports, business docs'},
+        sentence:{icon:'S',name:'Sentence (3)',desc:'Detects sentence boundaries (. ! ?) and groups 3 consecutive sentences per chunk. Sliding window can be adjusted.',pro:'Consistent granularity, precise retrieval',con:'May split related ideas across chunk groups',tip:'Best for: QA systems, dense factual content'},
+        fixed:{icon:'#',name:'Fixed 500ch',desc:'Hard 500-character windows with 100-char overlap to preserve context at boundaries. Completely ignores sentence or paragraph structure.',pro:'Predictable size, simple overlap for context',con:'Splits mid-sentence; loses semantic units',tip:'Best for: when uniform chunk size is critical'},
+        section:{icon:'§',name:'Section',desc:'Detects ALL-CAPS headers or short title-case lines as section delimiters, grouping all content under each heading into one chunk.',pro:'Respects document headings and hierarchy',con:'Requires clear heading structure in source',tip:'Best for: manuals, technical docs, wikis'},
+        context:{icon:'~',name:'Context-Aware',desc:'Embeds each sentence with TF vectors, measures cosine similarity between consecutive sentences, then splits at semantic breakpoints (adaptive threshold: mean − σ of similarities).',pro:'Groups semantically coherent ideas regardless of formatting',con:'Slower; TF vectors may miss deep semantic shifts',tip:'Best for: mixed-format docs, articles with implicit topic shifts'}
+    };
+    const defCards=Object.entries(CHDEF).map(([key,d])=>`<div class="def-card${ST.cm===key?' active':''}"><div class="def-card-name"><span style="font-family:var(--font-mono);font-size:.9rem;opacity:.6">${d.icon}</span> ${d.name}</div><div class="def-card-desc">${d.desc}</div><div class="def-pros-cons"><span class="pro">✓ ${d.pro}</span><span class="con">✗ ${d.con}</span></div><div class="def-card-meta">${d.tip}</div></div>`).join('');
+    return`<div class="sh"><div class="sn">Step 3 of 8</div><h2 class="st">Chunking</h2><p class="sd">Split the document into retrievable units. Switch strategies to compare how boundaries change.</p></div>
+    <div class="pn"><div class="ph"><span class="pl">Strategy</span><span style="font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim)">${ST.ch.length} chunks</span></div>
+    <div class="pb"><div class="sp">${['paragraph','sentence','fixed','section','context'].map(m=>`<button class="pill${ST.cm===m?' on':''}" onclick="ST.cm='${m}';doChunk();R()">${m==='sentence'?'Sentence (3)':m==='fixed'?'Fixed 500ch':m==='context'?'Context-Aware':m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div>
+    <div class="sr"><div class="sb"><div class="sv2">${ST.ch.length}</div><div class="sl">Chunks</div></div><div class="sb"><div class="sv2">${ST.ch.length?Math.round(ST.ch.reduce((a,c)=>a+c.length,0)/ST.ch.length):0}</div><div class="sl">Avg Chars</div></div></div></div></div>
+    <div class="pn"><div class="ph"><span class="pl">Strategy Definitions</span><span style="font-size:.68rem;color:var(--text-dim);font-family:var(--font-mono)">active highlighted</span></div><div class="pb"><div class="def-grid">${defCards}</div></div></div>
+    <div class="pn"><div class="ph"><span class="pl">Boundaries</span></div><div class="pb"><div class="ht" style="max-height:200px;overflow-y:auto">${inl}</div></div></div>
+    <div class="pn"><div class="ph"><span class="pl">Chunks</span></div><div class="pb"><div class="cg">${cards}</div></div></div>
+    <div class="ins ins-o"><span class="ins-i">⚠️</span><div><strong>Switch strategies</strong> and notice how boundaries change. Paragraph preserves natural units. Sentence gives granularity. Fixed can split mid-sentence. Section respects headings.</div></div>
+    <div class="br"><button class="btn bs" onclick="go(1)">← Back</button><button class="btn bp" onclick="doEmbed()">Generate Embeddings →</button></div>`},
+
+embed(){
+    const hasApi=!!ST.ak;
+    const dims=(ST.em==='llm'||ST.em==='local')?ST.ld:ST.voc.length;
+    const ml={tfidf:'TF-IDF',bow:'Bag of Words',bm25:'BM25','tfidf-bin':'TF-IDF Binary',llm:'Jina AI (Neural)',local:'In-Browser Neural'}[ST.em]||ST.em;
+    const isLLM=ST.em==='llm'||ST.em==='local';
+
+    // Loading state
+    if(ST.ll){
+        const isLocal=ST.em==='local';
+        const prog=ST.lp||'';
+        const pct=prog.match(/(\d+)%/)?.[1];
+        const loadMsg=isLocal
+            ?`<div style="text-align:center;padding:2.5rem">
+                <div class="ld" style="width:28px;height:28px;border-width:3px;margin:0 auto .8rem"></div>
+                <p style="color:var(--text-dim);font-weight:500">${prog||'Loading MiniLM model into browser…'}</p>
+                ${pct?`<div style="margin:.8rem auto 0;max-width:240px;height:6px;background:var(--bg-raised);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--cyan);border-radius:3px;transition:width .3s"></div></div>`:''}
+                <p style="font-size:.75rem;color:var(--text-ghost);margin-top:.6rem">~25 MB download · cached after first load · no API key needed</p>
+              </div>`
+            :`<div style="text-align:center;padding:2.5rem"><div class="ld" style="width:26px;height:26px;border-width:3px;margin:0 auto .8rem"></div><p style="color:var(--text-dim)">Calling Jina AI API for ${ST.ch.length} chunks…</p><p style="font-size:.75rem;color:var(--text-ghost);margin-top:.4rem">This may take a few seconds</p></div>`;
+        return`<div class="sh"><div class="sn">Step 4 of 8</div><h2 class="st">Vector Embeddings & Space</h2></div><div class="pn"><div class="pb">${loadMsg}</div></div>`;
+    }
+
+    // Embedding strategy definitions
+    const EMDEF={
+        tfidf:{name:'TF-IDF',type:'Sparse',typeCls:'sparse',desc:'Term Frequency × Inverse Document Frequency. Words frequent in a chunk but rare across the corpus receive high weight, surfacing discriminative terms.',pros:['Fast, no training required','Strong keyword retrieval baseline'],cons:['Misses synonyms and semantics','Vocabulary fixed at index time']},
+        bow:{name:'Bag of Words',type:'Sparse',typeCls:'sparse',desc:'Binary vector: each dimension is 1 if the vocabulary term is present, 0 otherwise. No frequency or positional information—pure presence/absence.',pros:['Extremely simple and transparent','Zero hyperparameters'],cons:['No frequency signal','Treats "run" and "running" as different words']},
+        bm25:{name:'BM25',type:'Sparse',typeCls:'sparse',desc:'Probabilistic ranking function used by Elasticsearch and Lucene. Extends TF-IDF with term saturation (k₁) and document length normalization (b).',pros:['Outperforms TF-IDF in practice','Length-normalized, saturates high TF'],cons:['Still keyword-only retrieval','Sensitive to k₁/b hyperparameters']},
+        'tfidf-bin':{name:'TF-IDF Binary',type:'Sparse',typeCls:'sparse',desc:'IDF weighting combined with binary term frequency—a hybrid of TF-IDF and BOW. Useful when repeated terms in a chunk should not inflate weight.',pros:['IDF signal without over-weighting repetition','Interpretable like TF-IDF'],cons:['Loses within-document frequency signal','Marginal improvement over BOW in practice']},
+        llm:{name:'Jina AI Embeddings',type:'Dense',typeCls:'dense',desc:'Jina AI\'s jina-embeddings-v3 model maps each chunk to a 1024-dim dense vector encoding deep semantic features. Captures synonyms, context, and conceptual similarity. Requires a Jina API key (1M tokens free).',pros:['True semantic understanding','Handles synonyms, paraphrases, multilingual'],cons:['Requires Jina API key','Network call per batch']},
+        local:{name:'In-Browser Neural',type:'Dense',typeCls:'dense',desc:'Runs all-MiniLM-L6-v2 (a 22M-parameter transformer) directly in your browser via Transformers.js + WebAssembly. The model (~25 MB) downloads once and is cached. No API key, no server — the neural network runs entirely on your device.',pros:['100% free, no API key needed','Works offline after first load','Real neural embeddings, 384 dimensions'],cons:['~25 MB download on first use','Slower than server-side for large batches','Smaller model than cloud APIs']}
+    };
+    const defCards=Object.entries(EMDEF).map(([key,d])=>`<div class="def-card${ST.em===key?' active':''}"><div class="def-card-name">${d.name} <span class="type-badge ${d.typeCls}">${d.type}</span></div><div class="def-card-desc">${d.desc}</div><div class="def-pros-cons">${d.pros.map(p=>`<span class="pro">✓ ${p}</span>`).join('')}${d.cons.map(c=>`<span class="con">✗ ${c}</span>`).join('')}</div></div>`).join('');
+
+    // Dense vs Sparse panel
+    const firstVec=ST.emb[0]?.vector||[];
+    const nonZero=firstVec.filter(v=>Math.abs(v)>1e-10).length;
+    const totalDims=firstVec.length||50;
+    const sparsePct=firstVec.length>0?Math.round((1-nonZero/totalDims)*100):94;
+    const sparseNZ=firstVec.length>0?nonZero:3;
+
+    // Build bar charts for sparse and dense illustration
+    let sparseBarHTML='',denseBarHTML='';
+    if(firstVec.length>0&&!isLLM){
+        const sv=firstVec.slice(0,50);const smx=Math.max(...sv.map(Math.abs),.001);
+        sparseBarHTML=sv.map(val=>{const ht=Math.max(2,(Math.abs(val)/smx)*32);const nz=Math.abs(val)>1e-10;return`<div class="b" style="height:${ht}px;background:${nz?'hsl(220,70%,55%)':'hsl(220,15%,88%)'}"></div>`}).join('');
+    }else{
+        // Simulated sparse pattern
+        sparseBarHTML=Array.from({length:50},(_,i)=>{const nz=i===2||i===7||i===15;const ht=nz?[28,20,16][Math.min(i===2?0:i===7?1:2,2)]:2;return`<div class="b" style="height:${ht}px;background:${nz?'hsl(220,70%,55%)':'hsl(220,15%,88%)'}"></div>`}).join('');
+    }
+    if(firstVec.length>0&&isLLM){
+        const dv=firstVec.slice(0,50);const dmx=Math.max(...dv.map(Math.abs),.001);
+        denseBarHTML=dv.map(val=>{const ht=Math.max(3,(Math.abs(val)/dmx)*32);const hu=val>=0?145:0;return`<div class="b" style="height:${ht}px;background:hsl(${hu},60%,50%)"></div>`}).join('');
+    }else{
+        // Simulated dense pattern (all non-zero, varying heights)
+        const seed=[0.8,0.3,0.6,0.2,0.7,0.4,0.9,0.1,0.5,0.65,0.35,0.75,0.25,0.55,0.45,0.85,0.15,0.7,0.3,0.6,0.5,0.4,0.8,0.2,0.7,0.6,0.3,0.9,0.1,0.5,0.7,0.4,0.6,0.3,0.8,0.5,0.2,0.9,0.4,0.7,0.3,0.6,0.8,0.1,0.5,0.7,0.4,0.3,0.6,0.8];
+        denseBarHTML=seed.map(v=>{const ht=Math.max(3,v*32);return`<div class="b" style="height:${ht}px;background:hsl(145,55%,45%)"></div>`}).join('');
+    }
+
+    const sparseDims=isLLM?50:totalDims;const sparseNZVal=isLLM?3:sparseNZ;
+    const denseDims=isLLM?totalDims:1536;const denseNZVal=isLLM?totalDims:1536;
+    const sparseLabel=isLLM?'Sparse (TF-IDF — simulated)':`Sparse (${ml}, ${sparseDims} dims)`;
+    const denseLabel=isLLM?`Dense (${ml}, ${denseDims} dims)`:'Dense (LLM Neural — simulated)';
+
+    const vocH=ST.voc.length?`<div class="pn"><div class="ph"><span class="pl">Vocabulary</span><span style="font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim)">${ST.voc.length} terms · top discriminative words</span></div><div class="pb"><div style="font-family:var(--font-mono);font-size:.73rem;color:var(--text-dim);line-height:1.9;word-spacing:.3em">${ST.voc.slice(0,40).join(', ')}${ST.voc.length>40?' …':''}</div></div></div>`:'';
+    const sd=Math.min(dims||50,50);
+    const rows=ST.emb.slice(0,8).map((e,i)=>{const v=e.vector.slice(0,sd);const mx=Math.max(...v.map(Math.abs),.001);const bars=v.map(val=>{const ht=Math.max(2,(Math.abs(val)/mx)*30);const hu=val>=0?210:25;const lt=65-Math.abs(val)/mx*25;return`<div class="vba" style="height:${ht}px;background:hsl(${hu},75%,${lt}%)"></div>`}).join('');const nums=e.vector.slice(0,6).map(v=>v.toFixed(3)).join(' ');return`<div class="vr"><span class="vl">Ch ${i+1}</span><div class="vb">${bars}</div><div class="vn">[${nums}…]</div></div>`}).join('');
+
+    // Vector stores
+    const VS=[
+        {name:'Pinecone',type:'cloud',typeLabel:'Managed Cloud',desc:'Fully managed, serverless vector database. Zero infrastructure, real-time upserts, metadata filtering, and horizontal scaling. Dominant choice for production RAG.'},
+        {name:'Weaviate',type:'oss',typeLabel:'Open-source',desc:'Vector search engine with a built-in schema and module ecosystem (OpenAI, Cohere, HuggingFace). Supports hybrid dense+sparse search natively.'},
+        {name:'FAISS',type:'lib',typeLabel:'Library (Meta)',desc:'In-process library for billion-scale nearest-neighbor search. No server — runs inside your application. Fastest option for pure ANN with no metadata filtering needs.'},
+        {name:'Chroma',type:'oss',typeLabel:'Open-source',desc:'Developer-friendly embedded vector database built for AI apps. Works fully in-memory, can persist to disk, and integrates with LangChain and LlamaIndex out of the box.'},
+        {name:'Qdrant',type:'oss',typeLabel:'Open-source / Cloud',desc:'High-performance vector database in Rust. Combines rich payload filtering with fast ANN search. Supports sparse vectors, named vectors, and quantization.'},
+        {name:'pgvector',type:'ext',typeLabel:'PostgreSQL Ext.',desc:'Add vector similarity search to your existing PostgreSQL database. Keep embeddings co-located with your relational data and query with SQL.'}
+    ];
+    const vsCards=VS.map(v=>`<div class="vs-card"><div class="vs-card-name">${v.name}</div><span class="vs-type ${v.type}">${v.typeLabel}</span><div class="vs-desc">${v.desc}</div></div>`).join('');
+
+    return`<div class="sh"><div class="sn">Step 4 of 8</div><h2 class="st">Vector Embeddings & Space</h2><p class="sd">Each chunk is converted into a number vector — its position in a high-dimensional space. Sparse methods count words; dense neural models encode meaning. Try <strong>In-Browser Neural</strong> to run a real transformer model locally, no API key needed.</p></div>
+    <div class="pn"><div class="ph"><span class="pl">Embedding Method</span><span style="font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim)">${ml} · ${isLLM?'dense':'sparse'}</span></div><div class="pb">
+    <div class="sp">
+    <button class="pill${ST.em==='tfidf'?' on':''}" onclick="ST.em='tfidf';computeEmbed()">TF-IDF</button>
+    <button class="pill${ST.em==='bow'?' on':''}" onclick="ST.em='bow';computeEmbed()">Bag of Words</button>
+    <button class="pill${ST.em==='bm25'?' on':''}" onclick="ST.em='bm25';computeEmbed()">BM25</button>
+    <button class="pill${ST.em==='tfidf-bin'?' on':''}" onclick="ST.em='tfidf-bin';computeEmbed()">TF-IDF Binary</button>
+    <button class="pill llm${ST.em==='llm'?' on':''}" onclick="ST.em='llm';computeEmbed()"${hasApi?'':' title="Add Jina API key on Step 1 first"'}>Jina Neural ${hasApi?'':'🔒'}</button>
+    <button class="pill llm${ST.em==='local'?' on':''}" onclick="ST.em='local';computeEmbed()">In-Browser Neural ✦</button>
+    </div>
+    <div class="ins ins-c" style="margin:0"><span class="ins-i">💡</span><div style="font-size:.8rem"><strong>Switch methods above</strong> — the embedding space below updates live. Watch clusters shift as the method changes.</div></div>
+    </div></div>
+    <div class="pn"><div class="ph"><span class="pl">Strategy Definitions</span><span style="font-size:.65rem;color:var(--text-dim);font-family:var(--font-mono)">active highlighted</span></div><div class="pb"><div class="def-grid">${defCards}</div></div></div>
+    <div class="sr"><div class="sb"><div class="sv2">${ST.emb.length||'—'}</div><div class="sl">Vectors</div></div><div class="sb"><div class="sv2">${dims||'—'}</div><div class="sl">Dimensions</div></div><div class="sb"><div class="sv2">${isLLM?'Dense':'Sparse'}</div><div class="sl">Type</div></div><div class="sb"><div class="sv2">${isLLM?'0%':ST.emb.length?Math.round((1-(ST.emb[0]?.vector.filter(v=>Math.abs(v)>1e-10).length||0)/(ST.emb[0]?.vector.length||1))*100)+'%':'—'}</div><div class="sl">Sparsity</div></div></div>
+    <div class="pn"><div class="ph"><span class="pl">Sparse vs Dense Vectors</span></div><div class="pb">
+    <div class="ds-panel">
+    <div class="ds-col">
+        <div class="ds-col-title"><span class="type-badge sparse">Sparse</span>${sparseLabel}</div>
+        <div class="ds-stat-row">
+            <div class="ds-stat"><div class="ds-stat-val">${isLLM?'~3':sparseNZVal}</div><div class="ds-stat-lbl">Non-zero dims</div></div>
+            <div class="ds-stat"><div class="ds-stat-val">${isLLM?'94%':sparsePct+'%'}</div><div class="ds-stat-lbl">Sparsity</div></div>
+            <div class="ds-stat"><div class="ds-stat-val">${sparseDims}</div><div class="ds-stat-lbl">Total dims</div></div>
+        </div>
+        <div class="ds-bars">${sparseBarHTML}</div>
+        <div class="ds-note">${isLLM?'Keyword methods only activate dims for terms that appear in the chunk. Most dimensions are zero.':'Only vocabulary terms present in this chunk have non-zero values. Highlighted bars are active terms.'}</div>
+    </div>
+    <div class="ds-col">
+        <div class="ds-col-title"><span class="type-badge dense">Dense</span>${denseLabel}</div>
+        <div class="ds-stat-row">
+            <div class="ds-stat"><div class="ds-stat-val">${isLLM?denseNZVal:1536}</div><div class="ds-stat-lbl">Non-zero dims</div></div>
+            <div class="ds-stat"><div class="ds-stat-val">${isLLM?'0%':'~0%'}</div><div class="ds-stat-lbl">Sparsity</div></div>
+            <div class="ds-stat"><div class="ds-stat-val">${isLLM?denseDims:1536}</div><div class="ds-stat-lbl">Total dims</div></div>
+        </div>
+        <div class="ds-bars">${denseBarHTML}</div>
+        <div class="ds-note">${isLLM?'Every dimension encodes an abstract learned feature. Semantically similar chunks have similar values across all dimensions.':'Neural embeddings pack meaning into every dimension. Add an API key above to generate real dense vectors.'}</div>
+    </div>
+    </div></div></div>
+    ${vocH}
+    ${ST.emb.length?`<div class="pn"><div class="ph"><span class="pl">Chunk Vectors</span><span style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-ghost)">${sd} of ${dims||'?'} dims shown</span></div>
+    <div class="pb" style="max-height:300px;overflow-y:auto">${rows}${ST.emb.length>8?`<div style="text-align:center;color:var(--text-ghost);font-size:.78rem;padding:.6rem 0">… +${ST.emb.length-8} more</div>`:''}</div></div>`:''}
+    ${ST.proj.length?`<div class="pn"><div class="ph"><span class="pl">2D Embedding Space (PCA)</span><span style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-ghost)">${ST.proj.length} chunks${ST.qp?' · query shown':''} · hover to inspect</span></div>
+    <div class="pb" style="padding:.4rem"><div class="ew" id="ew" style="min-height:400px"><canvas id="cv"></canvas>
+    <div class="el"><span><span class="ed" style="background:var(--cyan)"></span>Chunks</span>${ST.qp?'<span><span class="ed" style="background:var(--orange)"></span>Query</span>':''}${ST.ret.length?'<span><span class="ed" style="background:var(--green)"></span>Retrieved</span>':''}</div>
+    </div></div></div>`:`<div class="pn"><div class="pb" style="text-align:center;padding:1.8rem;color:var(--text-ghost)">Select an embedding method above to generate vectors and see the embedding space.</div></div>`}
+    <div class="pn"><div class="ph"><span class="pl">Where do embeddings get stored?</span><span style="font-size:.65rem;color:var(--text-dim);font-family:var(--font-mono)">Vector Stores</span></div><div class="pb">
+    <div class="vs-grid">${vsCards}</div>
+    <div class="ins ins-c" style="margin-top:.8rem;margin-bottom:0"><span class="ins-i">💡</span><div style="font-size:.8rem"><strong>In this tool</strong> embeddings live in browser memory. Production RAG indexes them into a vector store for millisecond retrieval at scale.</div></div>
+    </div></div>
+    <div class="br"><button class="btn bs" onclick="go(2)">← Back</button><button class="btn bp" onclick="nx()">Enter Query →</button></div>`},
+
+query(){return`<div class="sh"><div class="sn">Step 5 of 8</div><h2 class="st">Query</h2><p class="sd">Ask a question. It gets embedded with the same method, then compared against every chunk in vector space.</p></div>
+    <div class="pn"><div class="ph"><span class="pl">Your Question</span></div><div class="pb">
+    <input class="qi" id="qIn" type="text" placeholder="e.g. What was the revenue growth?" value="${ha(ST.q)}">
+    <div class="br" style="flex-wrap:wrap"><button class="btn bp" onclick="doQuery()">Search →</button>
+    <button class="bg" onclick="document.getElementById('qIn').value='What was the total revenue and growth rate?'">Revenue</button>
+    <button class="bg" onclick="document.getElementById('qIn').value='What caused customer churn?'">Churn</button>
+    <button class="bg" onclick="document.getElementById('qIn').value='What new product features were shipped?'">Features</button>
+    <button class="bg" onclick="document.getElementById('qIn').value='What is the financial outlook?'">Outlook</button>
+    </div></div></div>
+    ${ST.qv.length?renderQV():''}
+    <div class="ins ins-c"><span class="ins-i">💡</span><div><strong>Same vector space:</strong> The query is embedded using the identical method as the chunks. This shared space is what makes similarity comparison meaningful.</div></div>
+    <div class="br"><button class="btn bs" onclick="go(3)">← Back to Space</button></div>`},
+
+retrieve(){
+    if(!ST.sim.length)return`<div class="sh"><div class="sn">Step 6 of 8</div><h2 class="st">Retrieval</h2></div><div class="es">No query yet.</div><div class="br"><button class="btn bs" onclick="go(4)">← Back</button></div>`;
+    const mx=Math.max(ST.sim[0].score,.001);
+    const res=ST.sim.map((s,i)=>{const isT=i<ST.k;const pct=Math.max(0,Math.round((s.score/mx)*100));const ch=ST.ch[s.chunkIdx];const pv=ch.length>120?ch.slice(0,120)+'…':ch;return`<div class="smr${isT?' top':''}"><span class="smrk">#${i+1}</span><div class="sbw"><div class="sbb" style="width:${pct}%"></div></div><span class="sms">${(s.score*100).toFixed(1)}%</span><div class="smt">${h(pv)}</div></div>`}).join('');
+    return`<div class="sh"><div class="sn">Step 6 of 8</div><h2 class="st">Retrieval</h2><p class="sd">Cosine similarity ranks all chunks. The space shows query → nearest neighbors with scores.</p></div>
+    <div class="pn"><div class="ph"><span class="pl">Embedding Space — Query vs Chunks</span></div><div class="pb" style="padding:.4rem"><div class="ew" id="ew" style="min-height:380px"><canvas id="cv"></canvas>
+    <div class="el"><span><span class="ed" style="background:var(--cyan)"></span>Chunks</span><span><span class="ed" style="background:var(--orange)"></span>Query</span><span><span class="ed" style="background:var(--green)"></span>Retrieved</span></div>
+    </div></div></div>
+    <div class="slr"><span class="sll">Top-K:</span><input type="range" min="1" max="${Math.min(ST.ch.length,8)}" value="${ST.k}" oninput="updK(this.value)"><span class="slv" id="kv">${ST.k}</span></div>
+    <div class="pn"><div class="ph"><span class="pl">Ranked</span><span style="font-family:var(--font-mono);font-size:.68rem;color:var(--orange)">Top ${ST.k}</span></div>
+    <div class="pb" id="sR">${res}</div></div>
+    <div class="br"><button class="btn bs" onclick="go(4)">← Back</button><button class="btn bp" onclick="nx()">Context →</button></div>`},
+
+context(){
+    if(!ST.ret.length)return`<div class="sh"><div class="sn">Step 7 of 8</div><h2 class="st">Context Assembly</h2></div><div class="es">No results.</div>`;
+    const ev=ST.ret.map((r,i)=>`[Evidence ${i+1}] (Chunk ${r.chunkIdx+1}, ${(r.score*100).toFixed(1)}%)\n${ST.ch[r.chunkIdx]}`).join('\n\n');
+    const tk=Math.ceil(ev.split(/\s+/).length*1.3);
+    const pm=`<span class="sy">SYSTEM:</span>\n<span class="ix">Answer using ONLY the evidence below. Cite evidence numbers. If insufficient, say so.</span>\n\n<span class="dm">───────────────────</span>\n\n<span class="sy">EVIDENCE:</span>\n\n<span class="cx">${h(ev)}</span>\n\n<span class="dm">───────────────────</span>\n\n<span class="sy">QUERY:</span>\n<span class="qy">${h(ST.q)}</span>\n\n<span class="ix">Cite evidence. Abstain if insufficient.</span>`;
+    return`<div class="sh"><div class="sn">Step 7 of 8</div><h2 class="st">Context Assembly</h2><p class="sd">Retrieved chunks assembled into a structured prompt with grounding instructions.</p></div>
+    <div class="sr"><div class="sb"><div class="sv2">${ST.ret.length}</div><div class="sl">Evidence</div></div><div class="sb"><div class="sv2">~${tk}</div><div class="sl">Est. Tokens</div></div></div>
+    <div class="pn"><div class="ph"><span class="pl">Prompt</span><span style="font-family:var(--font-mono);font-size:.58rem;color:var(--text-ghost)"><span style="color:var(--purple)">■</span>sys <span style="color:var(--cyan)">■</span>instr <span style="color:var(--green)">■</span>evidence <span style="color:var(--orange)">■</span>query</span></div>
+    <div class="pb"><div class="pb2">${pm}</div></div></div>
+    <div class="br"><button class="btn bs" onclick="go(5)">← Back</button><button class="btn bp" onclick="nx()">Output →</button></div>`},
+
+generate(){
+    const tc=ST.ret.map(r=>({idx:r.chunkIdx+1,text:ST.ch[r.chunkIdx],score:r.score}));
+    let ans='Based on the available evidence:\n\n';
+    tc.forEach(c=>{const s=c.text.match(/[^.!?]+[.!?]+/g)||[c.text];ans+=h(s.slice(0,3).join(' ').trim())+` <span class="cit">[Evidence ${c.idx}]</span>\n\n`});
+    const avg=tc.reduce((a,c)=>a+c.score,0)/tc.length;
+    if(avg<.1)ans+=`\n<em style="color:var(--orange)">Low relevance — consider refining the query.</em>`;
+    const hasNemotron=ST.gp==='openrouter'&&!!ST.gk;
+    const nemotronSection=ST.gl
+        ?`<div class="pn"><div class="pb" style="text-align:center;padding:1.8rem"><div class="ld" style="width:22px;height:22px;border-width:3px;margin:0 auto .6rem"></div><p style="color:var(--text-dim)">Calling NVIDIA Nemotron via OpenRouter…</p></div></div>`
+        :ST.gr
+            ?`<div class="pn"><div class="ph"><span class="pl">Answer (NVIDIA Nemotron 3 Super Free)</span><span class="app-badge" style="font-size:.5rem">OpenRouter</span></div><div class="pb"><div class="go" style="white-space:pre-wrap">${h(ST.gr)}</div><div style="text-align:right;margin-top:.4rem"><button class="btn bs" style="font-size:.72rem" onclick="ST.gr='';doGenerateReal()">↺ Regenerate</button></div></div></div>`
+            :hasNemotron
+                ?`<div class="pn"><div class="pb" style="padding:1.2rem"><button class="btn bp" onclick="doGenerateReal()">✨ Generate with NVIDIA Nemotron Free</button><p style="font-size:.75rem;color:var(--text-dim);margin-top:.5rem">Uses your OpenRouter API key · <span style="font-family:var(--font-mono)">nvidia/nemotron-3-super-120b-a12b:free</span></p></div></div>`
+                :`<div class="ins ins-o"><span class="ins-i">💡</span><div>Select <strong>OpenRouter (Nemotron)</strong> on the Input step and add an OpenRouter API key to get a real AI-generated answer here.</div></div>`;
+    return`<div class="sh"><div class="sn">Step 8 of 8</div><h2 class="st">Generation</h2><p class="sd">The model produces a grounded answer with citations back to evidence.</p></div>
+    <div class="pn"><div class="ph"><span class="pl">Query</span></div><div class="pb"><div style="font-family:var(--font-mono);font-size:.85rem;color:var(--orange)">"${h(ST.q)}"</div></div></div>
+    <div class="fa">↓</div>
+    <div class="pn"><div class="ph"><span class="pl">Answer (Simulated)</span><span class="app-badge" style="font-size:.5rem">Model Agnostic</span></div><div class="pb"><div class="go">${ans}</div></div></div>
+    <div class="ins ins-o"><span class="ins-i">⚠️</span><div><strong>Simulated.</strong> A real LLM would synthesize naturally. This shows which evidence the model draws from.</div></div>
+    ${nemotronSection}
+    <div class="pn"><div class="ph"><span class="pl">Evidence Trace</span></div><div class="pb">${ST.ret.map((r,i)=>`<div style="margin-bottom:.8rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:.35rem;margin-bottom:.2rem"><span class="cit">[Ev ${i+1}]</span><span style="font-family:var(--font-mono);font-size:.65rem;color:var(--text-dim)">Chunk ${r.chunkIdx+1} · ${(r.score*100).toFixed(1)}%</span></div><div style="font-size:.8rem;color:var(--text-dim);line-height:1.5">${h(ST.ch[r.chunkIdx].slice(0,200))}${ST.ch[r.chunkIdx].length>200?'…':''}</div></div>`).join('')}</div></div>
+    <div class="ins ins-p"><span class="ins-i">🎓</span><div><strong>Full pipeline complete!</strong> Go back to any step to experiment with different inputs, chunking, embedding methods, or queries.</div></div>
+    <div class="br"><button class="btn bs" onclick="go(6)">← Back</button><button class="btn bp" onclick="resetAll()">🔄 Start Over</button><button class="btn bs" onclick="go(4)">New Query</button></div>`}
+};
+
+function doIngest(){ST.raw=document.getElementById('docIn').value.trim();if(!ST.raw)return;ST.clean=ST.raw.replace(/[\r\n]{3,}/g,'\n\n').replace(/[ \t]+/g,' ').replace(/^ +| +$/gm,'').trim();nx()}
+function renderQV(){const v=ST.qv.slice(0,Math.min(50,ST.qv.length));const mx=Math.max(...v.map(Math.abs),.001);const bars=v.map(val=>{const ht=Math.max(2,(Math.abs(val)/mx)*30);return`<div class="vba" style="height:${ht}px;background:hsl(25,75%,${60-Math.abs(val)/mx*25}%)"></div>`}).join('');const nums=ST.qv.slice(0,6).map(v=>v.toFixed(3)).join(' ');return`<div class="pn" style="margin-top:.9rem"><div class="ph"><span class="pl">Query Vector</span></div><div class="pb"><div style="font-family:var(--font-mono);font-size:.83rem;color:var(--orange);margin-bottom:.5rem">"${h(ST.q)}"</div><div class="vr" style="border:none;padding:0"><span class="vl" style="color:var(--orange)">Query</span><div class="vb">${bars}</div><div class="vn">[${nums}…]</div></div></div></div>`}
+function updK(v){ST.k=parseInt(v);ST.ret=ST.sim.slice(0,ST.k);document.getElementById('kv').textContent=ST.k;document.querySelectorAll('#sR .smr').forEach((el,i)=>el.classList.toggle('top',i<ST.k));drawC()}
+function resetAll(){Object.assign(ST,{step:0,raw:'',clean:'',ch:[],em:'tfidf',voc:[],emb:[],proj:[],q:'',qv:[],qp:null,sim:[],k:3,cm:'paragraph',ret:[],dn:new Set(),ll:false,ld:0,gp:'openrouter',gr:'',gl:false,_p1:null,_p2:null,_m:null});R()}
+
+R();
+</script>
+</body>
+</html>
