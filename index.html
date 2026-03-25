@@ -235,20 +235,6 @@ async function doGenerateReal(){
     }catch(e){alert('Generation error: '+e.message);}
     ST.gl=false;R();
 }
-async function doGenerateReal(){
-    if(!ST.ak){alert('Add an OpenRouter API key on the Input step first.');return}
-    ST.gl=true;R();
-    const ctx=ST.ret.map((r,i)=>`[Evidence ${i+1}]: ${ST.ch[r.chunkIdx]}`).join('\n\n');
-    const sys='You are a helpful assistant. Answer the question using only the provided evidence. Cite sources as [Evidence 1], [Evidence 2], etc.';
-    const usr=`Question: ${ST.q}\n\nEvidence:\n${ctx}`;
-    try{
-        const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`,'HTTP-Referer':'https://github.com/bhattad-ankur/ai-playground','X-Title':'RAG Visualizer'},body:JSON.stringify({model:'nvidia/nemotron-nano-8b-instruct:free',messages:[{role:'system',content:sys},{role:'user',content:usr}],max_tokens:512})});
-        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`API Error ${r.status}`)}
-        const d=await r.json();
-        ST.gr=d.choices[0]?.message?.content||'(empty response)';
-    }catch(e){alert('Generation error: '+e.message);}
-    ST.gl=false;R();
-}
 function cosS(a,b){let d=0,ma=0,mb=0;for(let i=0;i<a.length;i++){d+=a[i]*b[i];ma+=a[i]*a[i];mb+=b[i]*b[i]}return(ma===0||mb===0)?0:d/(Math.sqrt(ma)*Math.sqrt(mb))}
 
 // Chunking
