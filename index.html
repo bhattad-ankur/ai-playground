@@ -215,11 +215,11 @@ function eTFIDF(t,v,idf){const ts=tok(t),tf={};ts.forEach(t=>{tf[t]=(tf[t]||0)+1
 function eBOW(t,v){const s=new Set(tok(t));return v.map(w=>s.has(w)?1:0)}
 function eBM25(t,v,ad,idf){const ts=tok(t),tf={},dl=ts.length,k1=1.2,b=.75;ts.forEach(t=>{tf[t]=(tf[t]||0)+1});return v.map((w,i)=>{const f=tf[w]||0;return f>0?(idf[i]||1)*((f*(k1+1))/(f+k1*(1-b+b*(dl/(ad||1))))):0})}
 function eTFBIN(t,v,idf){const s=new Set(tok(t));return v.map((w,i)=>s.has(w)?(idf[i]||1):0)}
-async function eLLM(texts){
+async function eLLM(texts,inputType='passage'){
     if(!ST.ak)throw new Error('No API key');
     if(ST.ap==='openai'){const r=await fetch('https://api.openai.com/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`},body:JSON.stringify({model:'text-embedding-3-small',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
     if(ST.ap==='voyage'){const r=await fetch('https://api.voyageai.com/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`},body:JSON.stringify({model:'voyage-3-lite',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
-    if(ST.ap==='openrouter'){const r=await fetch('https://openrouter.ai/api/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`,'HTTP-Referer':'https://github.com/bhattad-ankur/ai-playground','X-Title':'RAG Visualizer'},body:JSON.stringify({model:'nvidia/llama-nemotron-embed-vl-1b-v2:free',input:texts})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
+    if(ST.ap==='openrouter'){const r=await fetch('https://openrouter.ai/api/v1/embeddings',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${ST.ak}`,'HTTP-Referer':'https://github.com/bhattad-ankur/ai-playground','X-Title':'RAG Visualizer'},body:JSON.stringify({model:'nvidia/llama-nemotron-embed-vl-1b-v2:free',input:texts,input_type:inputType})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${r.status}`)}const d=await r.json();return d.data.sort((a,b)=>a.index-b.index).map(x=>x.embedding)}
 }
 async function doGenerateReal(){
     if(!ST.ak){alert('Add an OpenRouter API key on the Input step first.');return}
@@ -283,7 +283,7 @@ async function doEmbed(){
 
 async function doQuery(){
     ST.q=document.getElementById('qIn').value.trim();if(!ST.q)return;
-    if(ST.em==='llm'&&ST.ak){try{const vs=await eLLM([ST.q]);ST.qv=vs[0]}catch(e){alert('Error: '+e.message);return}}
+    if(ST.em==='llm'&&ST.ak){try{const vs=await eLLM([ST.q],'query');ST.qv=vs[0]}catch(e){alert('Error: '+e.message);return}}
     else{const idf=buildIDF(ST.ch,ST.voc);const ad=ST.ch.reduce((a,c)=>a+tok(c).length,0)/ST.ch.length;if(ST.em==='bow')ST.qv=norm(eBOW(ST.q,ST.voc));else if(ST.em==='bm25')ST.qv=norm(eBM25(ST.q,ST.voc,ad,idf));else if(ST.em==='tfidf-bin')ST.qv=norm(eTFBIN(ST.q,ST.voc,idf));else ST.qv=norm(eTFIDF(ST.q,ST.voc,idf))}
     ST.qp=projQ(ST.qv);ST.sim=ST.emb.map(e=>({chunkIdx:e.chunkIdx,score:cosS(ST.qv,e.vector)})).sort((a,b)=>b.score-a.score);ST.ret=ST.sim.slice(0,ST.k);nx();
 }
